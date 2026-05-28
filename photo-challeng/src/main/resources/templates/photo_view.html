@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>作品檢視 | 52 週攝影挑戰</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .photo-frame {
+      background: #000;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .exif-badge {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 15px;
+      border-left: 5px solid #0d6efd;
+    }
+  </style>
+</head>
+
+<body class="bg-white">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h1 class="fw-bold mb-0" th:text="${progress.subTheme.title}">週次主題</h1>
+          <a href="javascript:history.back()" class="btn btn-outline-secondary rounded-pill">返回</a>
+        </div>
+
+        <div class="photo-frame mb-4 text-center">
+          <img th:src="@{'/uploads/' + ${progress.photoPath}}" class="img-fluid" style="max-height: 70vh;">
+        </div>
+
+        <div class="row mt-4">
+          <div class="col-md-7">
+            <h4 class="fw-bold">任務描述</h4>
+            <p class="text-secondary" th:text="${progress.subTheme.description}">描述內容...</p>
+          </div>
+          <div class="col-md-5">
+            <h4 class="fw-bold">拍攝參數 (EXIF)</h4>
+            <div class="exif-badge shadow-sm">
+              <div class="row text-center">
+                <div class="col-4">
+                  <small class="text-muted d-block">光圈</small>
+                  <strong class="h5" th:text="${progress.aperture ?: '--'}">f/2.8</strong>
+                </div>
+                <div class="col-4 border-start border-end">
+                  <small class="text-muted d-block">快門</small>
+                  <strong class="h5" th:text="${progress.shutterSpeed ?: '--'}">1/200s</strong>
+                </div>
+                <div class="col-4">
+                  <small class="text-muted d-block">感光度</small>
+                  <strong class="h5" th:text="${progress.iso != null ? 'ISO ' + progress.iso : '--'}">ISO 100</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: photo-challenge
+  
+  # 資料庫連線設定
+  datasource:
+    # 修改為你的資料庫名稱與帳密
+    url: jdbc:mysql://localhost:3306/photo_challenge_db?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+    username: darrenpj01
+    password: a123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # JPA / Hibernate 設定
+  jpa:
+    hibernate:
+      ddl-auto: update # 自動根據 Entity 建立或更新資料表
+    show-sql: true # 在終端機顯示執行的 SQL 指令
+    properties:
+      hibernate:
+        '[format_sql]': true # 格式化顯示的 SQL
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  # Thymeleaf 設定
+  # Thymeleaf 緩存，開發階段建議關閉，這樣改 HTML 重新整理就能看到效果
+  thymeleaf:
+    cache: false
+
+  file:
+    upload-dir: /Users/darren_li/uploads/photography_challenge
+
+# 設定上傳照片的大小限制 (既然是攝影網站，這很重要)
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  
+  
+  
+  
+  
+
+
+server:
+  port: 8080 # 網頁運行的連接埠
+
+# application.yml
+
+
+
+

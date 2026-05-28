@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>攝影挑戰儀表板</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f4f7f6;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 20px 0;
+    }
+
+    .week-card {
+      background: white;
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      border-top: 5px solid #dee2e6;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 220px;
+    }
+
+    .week-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .status-active {
+      border-top-color: #0d6efd !important;
+    }
+
+    .status-completed {
+      border-top-color: #198754 !important;
+      background-color: #f8fff9;
+    }
+
+    .week-num {
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #6c757d;
+      text-transform: uppercase;
+    }
+
+    .topic-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 10px 0;
+      color: #343a40;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .topic-desc {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin-bottom: 15px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .btn-upload {
+      font-size: 0.85rem;
+      border-radius: 20px;
+      padding: 5px 15px;
+    }
+
+    .header-section {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container py-5">
+
+    <div class="header-section">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="/" class="text-decoration-none">首頁</a></li>
+          <li class="breadcrumb-item active">挑戰儀表板</li>
+        </ol>
+      </nav>
+
+      <div class="row align-items-center">
+        <div class="col-md-7">
+          <div class="d-flex align-items-center flex-wrap gap-3 mb-2">
+            <h1 class="fw-bold mb-0" th:text="${data.planName}">計畫名稱</h1>
+            <span class="badge bg-info text-dark">
+              📸 攝影師：<span th:text="${userDisplayName}">嘉賓</span>
+            </span>
+          </div>
+          <p class="text-muted">挑戰進度：共 <span th:text="${data.totalWeeks}">52</span> 週攝影任務</p>
+        </div>
+
+        <div class="col-md-5 text-md-end">
+          <div class="d-flex justify-content-md-end align-items-center gap-2 mb-3">
+            <span class="small text-muted me-2">帳號：<strong th:text="${#authentication.name}">User</strong></span>
+            <form th:action="@{/logout}" method="post">
+              <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm">登出系統</button>
+            </form>
+          </div>
+          <form th:action="@{/dashboard/reset/{id}(id=${planId})}" method="post"
+            onsubmit="return confirm('確定要清空所有進度重新挑戰嗎？');">
+            <button type="submit" class="btn btn-danger btn-sm px-3 rounded-pill">
+              🔄 重新開始挑戰
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <div class="row align-items-center">
+        <div class="col">
+          <div class="progress" style="height: 12px; border-radius: 6px;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+              th:style="'width: ' + ${data.completionRate} + '%'" th:aria-valuenow="${data.completionRate}"
+              aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+        </div>
+        <div class="col-auto">
+          <div class="h4 mb-0 fw-bold text-primary">
+            <span th:text="${#numbers.formatDecimal(data.completionRate, 1, 1)}">0</span>%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="mb-3">📅 52 週挑戰清單</h3>
+
+    <div class="grid-container">
+      <div th:each="p : ${data.weeks}" th:if="${p != null}" class="week-card"
+        th:classappend="${p.status == 'COMPLETED' ? 'status-completed' : 'status-active'}">
+
+        <div class="week-num">Week <span th:text="${p.weekNum}">1</span></div>
+        <div class="topic-title" th:text="${p.title}">主題名稱</div>
+        <small class="topic-desc" th:text="${p.description}">任務具體描述內容...</small>
+
+        <div th:switch="${p.status}">
+          <div th:case="'COMPLETED'">
+            <span class="badge bg-success mb-2">已完成</span>
+            <a th:href="@{/progress/detail/{id}(id=${p.progressId})}"
+              class="btn btn-outline-success btn-sm w-100 btn-upload">查看作品</a>
+          </div>
+          <div th:case="*">
+            <span class="badge bg-primary mb-2">進行中</span>
+            <a th:href="@{/upload(progressId=${p.progressId}, planId=${planId})}"
+              class="btn btn-primary btn-sm w-100 btn-upload">上傳照片</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="py-5 text-center text-muted border-top mt-5">
+    <p>&copy; 2026 52-Week Photography Challenge | Darren's Project</p>
+    <p class="small">Xinshi, Tainan - Developer Mode</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

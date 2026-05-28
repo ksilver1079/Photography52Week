@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${planName}"></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/detail.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/js/main.js"></script>
+</head>
+
+<body class="bg-light">
+
+  <div class="container py-5">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/" class="text-decoration-none">🏠 首頁</a></li>
+        <li class="breadcrumb-item active" th:text="${planName}"></li>
+      </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <h1 class="fw-bold" th:text="${planName}">主題名稱</h1>
+        <p class="text-muted mb-0">點擊下方編號格子，查看本週攝影任務</p>
+      </div>
+    </div>
+
+
+    <div class="grid-container">
+      <div th:each="task, iter : ${tasks}" class="task-node shadow-sm"
+        th:classappend="${task.completed} ? 'node-completed' : ''"
+        th:onclick="selectTask([[${task.id}]], [[${task.itemName}]], [[${task.description}]], [[${task.completed}]])">
+        <span th:text="${iter.count}"></span>
+      </div>
+    </div>
+
+    <div id="infoPanel" class="info-panel mt-5">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 id="taskTitle" class="fw-bold text-dark">請選擇一個編號</h2>
+          <p id="taskDesc" class="lead text-secondary mt-3">點擊上方格子查看任務內容...</p>
+        </div>
+        <div id="actionArea" class="d-none">
+          <button id="statusBtn" class="btn btn-lg px-4 fw-bold shadow-sm" onclick="handleToggle()">
+            標記為完成
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentTaskId = null;
+
+    /**
+     * 當使用者點擊格子時，更新下方顯示面板
+     */
+    function selectTask(id, title, desc, isCompleted) {
+      currentTaskId = id;
+      const panel = document.getElementById('infoPanel');
+      const btn = document.getElementById('statusBtn');
+      const actionArea = document.getElementById('actionArea');
+
+      // 1. 更新內容
+      document.getElementById('taskTitle').innerText = title;
+      document.getElementById('taskDesc').innerText = desc;
+      actionArea.classList.remove('d-none');
+
+      // 2. 更新面板與按鈕狀態
+      if (isCompleted) {
+        panel.classList.add('active-completed');
+        btn.innerText = '↺ 取消完成狀態';
+        btn.className = 'btn btn-outline-danger btn-lg px-4 fw-bold';
+      } else {
+        panel.classList.remove('active-completed');
+        btn.innerText = '✅ 標記為完成';
+        btn.className = 'btn btn-success btn-lg px-4 fw-bold';
+      }
+    }
+
+    /**
+     * 處理狀態切換
+     */
+    function handleToggle() {
+      if (!currentTaskId) return;
+
+      // 顯示一個簡單的 Loading，防止重複點擊
+      Swal.fire({
+        title: '更新中...',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+
+      // 呼叫 API (這裡可以複用 main.js 裡的 logic，或直接寫)
+      fetch(`/api/tasks/toggle/${currentTaskId}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            // 更新成功後自動重新整理，讓進度條同步
+            location.reload();
+          }
+        })
+        .catch(err => {
+          Swal.fire('錯誤', '更新失敗，請檢查伺服器連線', 'error');
+        });
+    }
+
+    // 在 detail.html 底部，我們改用這種乾淨的點擊處理
+    function handleTaskClick(taskId) {
+      fetch(`/api/tasks/toggle/${taskId}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            // 成功後直接刷新或局部更新 UI
+            location.reload();
+          }
+        });
+    }
+  </script>
+
+</body>
+
+</html>

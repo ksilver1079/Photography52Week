@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-PhotoChallengeApplication<photo-challeng>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.darren.photo_challeng.PhotoChallengeApplication",
+      "projectName": "photo-challeng",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

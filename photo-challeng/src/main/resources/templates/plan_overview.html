@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>計畫總覽 | 52 週攝影挑戰</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+      gap: 12px;
+    }
+
+    .task-node {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #adb5bd;
+      /* 預設灰色字 */
+      transition: all 0.2s ease;
+    }
+
+    .task-node:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 🟢 已完成狀態 */
+    .node-completed {
+      background: #e8f5e9;
+      border-color: #28a745;
+      color: #28a745;
+    }
+
+    /* 🔵 進行中狀態 (盲盒被打開的當下) */
+    .node-active {
+      background: #e7f1ff;
+      border-color: #0d6efd;
+      color: #0d6efd;
+      box-shadow: 0 0 10px rgba(13, 110, 253, 0.3);
+    }
+
+    .info-panel {
+      background: #fff;
+      border-radius: 12px;
+      min-height: 200px;
+      transition: 0.3s;
+      border-left: 5px solid #dee2e6;
+      /* 預設左邊框 */
+    }
+  </style>
+</head>
+
+<body class="bg-light">
+  <div class="container py-5">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a th:href="@{'/dashboard/' + ${planId}}">⬅️ 返回儀表板</a></li>
+        <li class="breadcrumb-item active">計畫總覽</li>
+      </ol>
+    </nav>
+
+    <h1 class="fw-bold mb-4" th:text="${planName}">攝影計畫名稱</h1>
+
+    <div class="grid-container mb-5">
+      <div th:each="p, iter : ${data.weeks}" class="task-node shadow-sm"
+        th:classappend="${p.status == 'COMPLETED'} ? 'node-completed' : (${p.status == 'ACTIVE'} ? 'node-active' : '')"
+        th:onclick="selectTask(
+            [[${p.subThemeId}]], 
+            [[${p.status == 'LOCKED' ? '🎁 未知挑戰' : p.title}]], 
+            [[${p.status == 'LOCKED' ? '請先完成前置任務，才能解鎖此盲盒內容喔！' : p.description}]], 
+            [[${p.status}]]
+        )">
+        <span th:text="${iter.count}">1</span>
+      </div>
+    </div>
+
+    <div id="infoPanel" class="info-panel p-4 shadow-sm">
+      <span id="taskBadge" class="badge bg-secondary mb-2">請選擇任務</span>
+      <h2 id="taskTitle" class="fw-bold">點擊上方網格查看詳情</h2>
+      <p id="taskDesc" class="lead text-secondary mt-3">這裡會顯示該週的攝影挑戰主題與具體要求...</p>
+
+      <div id="actionArea" class="mt-4 d-none">
+        <a id="uploadBtn" href="#" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">📸 上傳本週作品</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function selectTask(id, title, desc, status) {
+      document.getElementById('taskTitle').innerText = title;
+      document.getElementById('taskDesc').innerText = desc;
+
+      const infoPanel = document.getElementById('infoPanel');
+      const taskBadge = document.getElementById('taskBadge');
+      const actionArea = document.getElementById('actionArea');
+      const uploadBtn = document.getElementById('uploadBtn');
+
+      // UI 狀態重置
+      actionArea.classList.remove('d-none');
+      uploadBtn.classList.add('d-none');
+
+      // 根據狀態切換面板顏色與按鈕
+      if (status === 'COMPLETED') {
+        infoPanel.style.borderLeftColor = '#28a745';
+        taskBadge.className = 'badge bg-success mb-2';
+        taskBadge.innerText = '✅ 已完成';
+      } else if (status === 'ACTIVE') {
+        infoPanel.style.borderLeftColor = '#0d6efd';
+        taskBadge.className = 'badge bg-primary mb-2';
+        taskBadge.innerText = '🏃 進行中';
+        // 只有 ACTIVE 才可以上傳
+        uploadBtn.classList.remove('d-none');
+        uploadBtn.href = '/progress/upload/' + id;
+      } else {
+        infoPanel.style.borderLeftColor = '#6c757d';
+        taskBadge.className = 'badge bg-secondary mb-2';
+        taskBadge.innerText = '🔒 鎖定中';
+        actionArea.classList.add('d-none');
+      }
+    }
+  </script>
+</body>
+
+</html>

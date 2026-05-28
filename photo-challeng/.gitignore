@@ -1,0 +1,44 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+# 編譯產出物
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# VS Code 與 Mac 隱藏檔
+.vscode/
+.DS_Store
+
+# 你的使用者上傳照片資料夾 (如果有把照片存在專案內，記得排除，否則 GitHub 會爆掉)
+uploads/
